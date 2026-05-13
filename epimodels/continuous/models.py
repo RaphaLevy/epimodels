@@ -1856,7 +1856,7 @@ class SEIRS_SEI(ContinuousModel):
                 "b1": r"$b_1$",
                 "b2": r"$b_2$",
                 "gamma": r"$\gamma$",
-                "r_H": r"$r_H$",
+                #"r_H": r"$r_H$",
                 "omega": r"$\omega$",
                 "tau_H": r"$\tau_H$",
                 "BE": r"$B_E$",
