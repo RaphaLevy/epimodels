@@ -1800,8 +1800,8 @@ class SEIRS_SEI(ContinuousModel):
         - Forest Fires (INPE data): smoke reduces biting rate
 
     Delay Parameters:
-        - tau_H: Human incubation period (exposed -> infectious)
-        - tau_M: Sporogonic cycle duration (mosquito exposed -> infectious)
+        - tau_H: Human incubation period (exposed -> infectious): b3_H
+        - tau_M: Sporogonic cycle duration (mosquito exposed -> infectious): b3_M
 
     Reference:
         Inspired by Parham & Michael (2010) and Amazon malaria studies.
