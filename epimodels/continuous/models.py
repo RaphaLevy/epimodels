@@ -1787,7 +1787,7 @@ class SEIRS_SEI(ContinuousModel):
         S_H : Susceptible Humans
         E_H : Exposed Humans (incubating, not yet infectious)
         I_H : Infectious Humans
-        R_H : Recovered Humans (immune)
+        R_H : Recovered Humans (waning immunity)
 
     Mosquito Compartments (SEI):
         S_M : Susceptible Mosquitoes
