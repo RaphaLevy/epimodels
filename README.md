@@ -118,6 +118,7 @@ print(f"R0 = {R0}")
 | `SIRSEIData` | 7 compartments | Malaria with real climate data |
 | `SEIRS_SEI` | 7 compartments | Vector-borne with deforestation/fire effects |
 | `SIR2Strain` | 10 compartments | Two-strain SIR with cross-immunity |
+| `SIR1D` | S, I | 1D reduced SIR (beta/gamma tracking) |
 | `SISLogistic` | S, I | SIS with logistic population growth |
 | `SIRSNonAutonomous` | S, I, R | Time-dependent parameters (callables) |
 | `NeipelHeterogeneousSIR` | I, tau | Heterogeneous susceptibility |

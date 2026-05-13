@@ -67,6 +67,9 @@ Contents
    solvers
    validation_system
    fitting
+   stochastic
+   phase_space
+   exporters
 
 .. toctree::
    :maxdepth: 2
@@ -85,6 +88,10 @@ Contents
    Examples/neipel_heterogeneous_sir_example
    Examples/Validation_Framework
    Examples/Advanced_Analytics
+   Examples/Model_Fitting_SIRSEI
+   Examples/Model_Fitting_SIRSEI_Prevalence
+   Examples/SEIRS_SEI_Model_Environment
+   Examples/Model_Fitting_SEIRS_SEI
 
 .. toctree::
    :maxdepth: 2
@@ -128,6 +135,7 @@ Continuous Models (ODE-based)
   - :class:`~epimodels.continuous.models.SIRSEIData` - Malaria with real climate data
   - :class:`~epimodels.continuous.models.SEIRS_SEI` - Vector-borne with environmental effects
   - :class:`~epimodels.continuous.models.SIR2Strain` - Two-strain SIR with cross-immunity
+  - :class:`~epimodels.continuous.models.SIR1D` - 1D reduced SIR (beta/gamma tracking)
   - :class:`~epimodels.continuous.models.SISLogistic` - SIS with logistic population growth
   - :class:`~epimodels.continuous.models.SIRSNonAutonomous` - SIRS with time-dependent parameters
   - :class:`~epimodels.continuous.models.NeipelHeterogeneousSIR` - Heterogeneous susceptibility
