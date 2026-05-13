@@ -105,7 +105,6 @@ class CTMCSolverBase(ABC):
         """
         ...
 
-
 class GillespieSolver(CTMCSolverBase):
     """
     Gillespie Direct Method (SSA) solver.
@@ -183,9 +182,231 @@ class GillespieSolver(CTMCSolverBase):
             steps=len(event_indices_list),
         )
 
+class TauLeapingSolver(CTMCSolverBase):
+    """
+    Tau-leaping solver for CTMC models.
+
+    Approximates the CTMC by leaping over fixed time steps tau,
+    sampling the number of occurrences of each event via Poisson
+    distributions.
+
+    Parameters:
+        tau: Time step size
+    """
+
+    def __init__(self, tau: float = 0.05):
+        if tau <= 0:
+            raise ValueError("tau must be positive")
+        self.tau = tau
+
+    def solve(
+        self,
+        propensity_fn: Callable[[dict, NDArray], NDArray],
+        transition_matrix: NDArray[np.int64],
+        initial_state: NDArray[np.int64],
+        t_span: tuple[float, float],
+        params: dict,
+        rng: np.random.Generator,
+        **kwargs,
+    ) -> CTMCTrajectory:
+        t0, tf = t_span
+        state = np.array(initial_state, dtype=np.int64)
+        tmat = np.asarray(transition_matrix, dtype=np.int64)
+        n_events = tmat.shape[1]
+
+        times_list = [t0]
+        states_list = [state.copy()]
+        event_indices_list = []
+
+        tc = float(t0)
+
+        while tc < tf:
+            a = propensity_fn(params, state)
+            a0 = float(a.sum())
+
+            if a0 <= 0.0:
+                break
+
+            tau = min(self.tau, tf - tc)
+            K = rng.poisson(a * tau)
+
+            state = state + tmat @ K
+            state = np.maximum(state, 0)
+
+            tc += tau
+
+            times_list.append(tc)
+            states_list.append(state.copy())
+            
+            event_indices_list.append(-1)
+
+        if len(times_list) == 1:
+            times_list.append(tf)
+            states_list.append(state.copy())
+
+        return CTMCTrajectory(
+            times=np.array(times_list),
+            states=np.array(states_list),
+            event_indices=np.array(event_indices_list, dtype=np.intp),
+            steps=len(event_indices_list),
+        )
+
+class MidpointTauLeapingSolver(CTMCSolverBase):
+    """
+    Midpoint tau-leaping solver for CTMC models.
+
+    Improves the standard tau-leaping method by estimating propensities
+    at the midpoint of the interval, yielding better accuracy (second-order).
+
+    Parameters:
+        tau: Time step size
+    """
+
+    def __init__(self, tau: float = 0.05):
+        if tau <= 0:
+            raise ValueError("tau must be positive")
+        self.tau = tau
+
+    def solve(
+        self,
+        propensity_fn: Callable[[dict, NDArray], NDArray],
+        transition_matrix: NDArray[np.int64],
+        initial_state: NDArray[np.int64],
+        t_span: tuple[float, float],
+        params: dict,
+        rng: np.random.Generator,
+        **kwargs,
+    ) -> CTMCTrajectory:
+        t0, tf = t_span
+        state = np.array(initial_state, dtype=np.int64)
+        tmat = np.asarray(transition_matrix, dtype=np.int64)
+        n_events = tmat.shape[1]
+
+        times_list = [t0]
+        states_list = [state.copy()]
+        event_indices_list = []
+
+        tc = float(t0)
+
+        while tc < tf:
+            a = propensity_fn(params, state)
+            a0 = float(a.sum())
+
+            if a0 <= 0.0:
+                break
+
+            tau = min(self.tau, tf - tc)
+
+            state_midpoint = state + 0.5 * tau * (tmat @ a)
+
+            a_mid = propensity_fn(params, state_midpoint)
+            a_mid = np.asarray(a_mid, dtype=float)
+
+            K = rng.poisson(a_mid * tau)
+
+            state = state + tmat @ K
+            state = np.maximum(state, 0)
+
+            tc += tau
+
+            times_list.append(tc)
+            states_list.append(state.copy())
+            
+            event_indices_list.append(-1)
+
+        if len(times_list) == 1:
+            times_list.append(tf)
+            states_list.append(state.copy())
+
+        return CTMCTrajectory(
+            times=np.array(times_list),
+            states=np.array(states_list),
+            event_indices=np.array(event_indices_list, dtype=np.intp),
+            steps=len(event_indices_list),
+        )
+
+class KLeapingSolver(CTMCSolverBase):
+    """
+    K-leaping solver for CTMC models.
+
+    Advances the system by simulating k events at a time, assuming that
+    transition rates remain approximately constant during the leap.
+
+    Parameters:
+        k: Number of events per leap
+    """
+
+    def __init__(self, k: int = 10):
+        if k <= 0:
+            raise ValueError("k must be a positive integer")
+        self.k = k
+
+    def solve(
+        self,
+        propensity_fn: Callable[[dict, NDArray], NDArray],
+        transition_matrix: NDArray[np.int64],
+        initial_state: NDArray[np.int64],
+        t_span: tuple[float, float],
+        params: dict,
+        rng: np.random.Generator,
+        **kwargs,
+    ) -> CTMCTrajectory:
+        t0, tf = t_span
+        state = np.array(initial_state, dtype=np.int64)
+        tmat = np.asarray(transition_matrix, dtype=np.int64)
+        n_events = tmat.shape[1]
+
+        times_list = [t0]
+        states_list = [state.copy()]
+        event_indices_list = []
+
+        tc = float(t0)
+
+        while tc < tf:
+            a = propensity_fn(params, state)
+            a0 = float(a.sum())
+
+            if a0 <= 0.0:
+                break
+
+            tau = rng.gamma(shape=self.k, scale=1.0 / a0)
+
+            if tc + tau > tf:
+                tau = tf - tc
+                k_eff = max(1, rng.poisson(a0 * tau))
+            else:
+                k_eff = self.k
+
+            p = a / a0
+            K = rng.multinomial(k_eff, p)
+
+            state = state + tmat @ K
+            state = np.maximum(state, 0)
+
+            tc += tau
+
+            times_list.append(tc)
+            states_list.append(state.copy())
+            
+            event_indices_list.append(-1)
+
+        if len(times_list) == 1:
+            times_list.append(tf)
+            states_list.append(state.copy())
+
+        return CTMCTrajectory(
+            times=np.array(times_list),
+            states=np.array(states_list),
+            event_indices=np.array(event_indices_list, dtype=np.intp),
+            steps=len(event_indices_list),
+        )
+
 
 __all__ = [
     "CTMCTrajectory",
     "CTMCSolverBase",
     "GillespieSolver",
+    "TauLeapingSolver",
+    "MidpointTauLeapingSolver",
+    "KLeapingSolver"
 ]
