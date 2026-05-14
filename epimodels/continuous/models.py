@@ -2018,16 +2018,14 @@ class SEIRS_SEI(ContinuousModel):
         """Mosquito mortality rate."""
         p_T_val = self._p_T(T, U)
         if p_T_val <= 0:
-            return 0.15
-        mu_val = -np.log(p_T_val)
-        return min(mu_val, 0.3)
+            return 1.0
+        return -np.log(p_T_val)
 
     def _a(self, T: float) -> float:
         """Mosquito biting rate (base function)."""
-        T_prime = self.param_values.get("T_prime", 25.6)
-        D1 = self.param_values.get("D1", 4.0)
-        a_val = np.maximum(0, (T - T_prime) / D1)
-        return np.minimum(a_val, 0.8)
+        T_prime = self.param_values.get("T_prime", 19.9)
+        D1 = self.param_values.get("D1", 36.5)
+        return np.maximum(0, (T - T_prime) / D1)
 
     def _a_with_fire(self, T: float, fire_counts: float) -> float:
         """Mosquito biting rate with fire/smoke effect."""
