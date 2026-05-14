@@ -1986,8 +1986,6 @@ class SEIRS_SEI(ContinuousModel):
         c1 = self.param_values.get("c1", 0.00554)
         c2 = self.param_values.get("c2", -0.06737)
         exponent = c1 * T + c2
-        if exponent > 10:
-            return 0.0
         return np.exp(-exponent)
 
     def _p_LR(self, R: float, R_L: float, p_ML: float) -> float:
@@ -2013,7 +2011,7 @@ class SEIRS_SEI(ContinuousModel):
         DD = self.param_values.get("DD", 105.0)
         Tmin = self.param_values.get("Tmin", 14.5)
         if T <= Tmin:
-            return 50.0
+            return 1000.0
         return DD / (T - Tmin)
 
     def _mu(self, T: float, U: float) -> float:
