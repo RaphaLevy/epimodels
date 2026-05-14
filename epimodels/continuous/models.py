@@ -1804,7 +1804,8 @@ class SEIRS_SEI(ContinuousModel):
         - tau_M: Sporogonic cycle duration (mosquito exposed -> infectious): b3_M
 
     Reference:
-        Inspired by Parham & Michael (2010) and Amazon malaria studies.
+        Based in Parham & Michael (2010) and Amazon malaria studies, with further modifications
+        inspired by Mordecai et al (2013) and Eikenberry and Gumel (2017).
 
     Example:
         >>> model = SEIRS_SEI()
@@ -1872,7 +1873,6 @@ class SEIRS_SEI(ContinuousModel):
                 "B": r"$B$",
                 "C": r"$C$",
                 "DD": r"$DD$",
-                "Tmin": r"$T_{min}$",
                 "T_prime": r"$T'$",
                 "R_L": r"$R_L$",
                 "defor_max_effect": r"$defor_{max}$",
@@ -1881,6 +1881,12 @@ class SEIRS_SEI(ContinuousModel):
                 "fire_smoke_effect": r"$fire_{smoke}$",
                 "fire_habitat_effect": r"$fire_{habitat}$",
                 "fire_recovery_delay": r"$fire_{delay}$",
+                "optimal_temp_plasm": r"$T_{opt_plasm}$",
+                "Tmin": r"$T_{min}$", #critical_min_temp_plasm
+                "critical_max_temp_plasm": r"$T_{max_plasm}$",
+                "optimal_temp_anop": r"$T_{opt_anop}$",
+                "critical_min_temp_anop": r"$T_{min_anop}$",
+                "critical_max_temp_anop": r"$T_{max_anop}$",
             }
         )
         self.model_type = "SEIRS-SEI"
