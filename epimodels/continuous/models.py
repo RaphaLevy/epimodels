@@ -2151,7 +2151,7 @@ class SEIRS_SEI(ContinuousModel):
         b1 = params["b1"]
         b2 = params["b2"]
         gamma = params["gamma"]
-        r_H = params["r_H"]
+        #r_H = params["r_H"]
         omega = params["omega"]
         tau_H = params["tau_H"]
         R_L = params["R_L"]
@@ -2232,7 +2232,7 @@ class SEIRS_SEI(ContinuousModel):
         recoveries = gamma * I_H
         immunity_loss = omega * R_H
 
-        dS_H = r_H * N - new_exposures_h + immunity_loss
+        dS_H = - new_exposures_h + immunity_loss
         dE_H = new_exposures_h - new_infections_h
         dI_H = new_infections_h - recoveries
         dR_H = recoveries - immunity_loss
