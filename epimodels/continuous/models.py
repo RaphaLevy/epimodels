@@ -2182,16 +2182,16 @@ class SEIRS_SEI(ContinuousModel):
         mu_curr = self._mu_with_fire(T, U, fire_counts)
         tau_M_curr = self._tau_M(T)
 
-        temp_factor = max(0.1, min(1, (T - 15) / 15))
-        rain_factor = min(1, max(0, R / R_L))
-        day_of_year = int(t % 365.25)
-        seasonal_phase = 2 * np.pi * (day_of_year - 180) / 365.25
-        seasonal_factor = 2.5 + 2.0 * np.sin(seasonal_phase)
+        temp_factor = max(0, (T - critical_min_temp_anop)/(optimal_temp_anop - critical_min_temp_anop))
+
+        habitat_creating_factor = 2*R/R_L
+        habitat_flushing_factor = np.exp(1 - (2*R/R_L))
+        rain_factor = habitat_creating_factor * habitat_flushing_factor
 
         defor_cap_factor = 1 + min(total_defor * defor_scale, defor_max_effect)
         fire_cap_factor = 1 - (fire_habitat_effect * min(delayed_fire / 50.0, 1.0))
         env_cap_factor = defor_cap_factor * max(fire_cap_factor, 0.3)
-        K = M * temp_factor * rain_factor * seasonal_factor * env_cap_factor
+        K = M * temp_factor * rain_factor * env_cap_factor
 
         b_curr = self._b_rate_with_environment(
             R, T, R_L, p_ME, p_ML, p_MP, delayed_fire, delayed_defor
