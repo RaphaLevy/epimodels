@@ -1965,12 +1965,12 @@ class SEIRS_SEI(ContinuousModel):
 
     def _p_T(self, T: float, U: float) -> float:
         """Daily mosquito survival probability (temperature and humidity dependent)."""
-        A = self.param_values.get("A", 12.5)
-        B = self.param_values.get("B", 15.0)
-        C = self.param_values.get("C", -48.78)
+        A = self.param_values.get("A", -0.03)
+        B = self.param_values.get("B", 1.31)
+        C = self.param_values.get("C", -4.4)
         denom = A * T**2 + B * T + C
-        if denom >= 0:
-            p_T_temp = 0.85
+        if denom <= 0:
+            p_T_temp = 0.0
         else:
             p_T_temp = np.exp(-1.0 / denom)
         if U < 50:
